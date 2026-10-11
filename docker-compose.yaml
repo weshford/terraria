@@ -1,0 +1,57 @@
+services:
+  world-init:
+    image: alpine:3.22
+    restart: "no"
+
+    volumes:
+      - terraria-data:/data
+
+    environment:
+      WORLD_URL: "https://raw.githubusercontent.com/weshford/terraria/main/fellbach.wld"
+
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -eu
+        mkdir -p /data/Worlds
+
+        if [ ! -s /data/Worlds/fellbach.wld ]; then
+          echo "Downloading world from GitHub..."
+          wget -O /data/Worlds/fellbach.wld "$$WORLD_URL"
+          test -s /data/Worlds/fellbach.wld
+          echo "World downloaded successfully."
+        else
+          echo "Existing world found; keeping it."
+        fi
+
+  terraria:
+    image: passivelemon/terraria-docker:terraria-latest
+    restart: unless-stopped
+
+    depends_on:
+      world-init:
+        condition: service_completed_successfully
+
+    ports:
+      - "7777:7777/tcp"
+
+    environment:
+      WORLDNAME: "fellbach"
+
+      MAXPLAYERS: "8"
+
+      DIFFICULTY: "2" #experten
+
+      LANGUAGE: "en-US"
+      PORT: "7777"
+      MOTD: "AUF GEHTS FELLBACH"
+      PASSWORD: ${TERRARIA_PASSWORD}
+      SECURE: "1"
+      UPNP: "0"
+      NPCSTREAM: "15"
+      PRIORITY: "1"
+      BANLIST: "banlist.txt"
+      SERVERCONFIG: "0"
+
+    volumes:
+      - terraria-data:/opt/terraria/config
