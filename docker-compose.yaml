@@ -7,7 +7,7 @@ services:
       - terraria-data:/data
 
     environment:
-      WORLD_URL: "https://raw.githubusercontent.com/weshford/terraria/main/fellbach.wld"
+      WORLD_URL: "https://raw.githubusercontent.com/weshford/terraria/master/fellbach.wld"
 
     entrypoint: ["/bin/sh", "-c"]
     command:
